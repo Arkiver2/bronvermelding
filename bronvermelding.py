@@ -7,6 +7,8 @@ Gemaakt door Auke Schuringa.
 import sys
 import re
 import time
+import urllib
+import os
 
 def convert_month(premonth):
 	if re.match(r'[0-9]', premonth):
@@ -63,7 +65,7 @@ def date(sort):
 			return "z.d."
 		elif sort == "het bekijken":
 			print("De datum van vandaag wordt gebruikt als tijd van {0}.".format(sort))
-			return "{0} {1}, {2},".format(str(int(time.strftime("%d"))), convert_month(time.strftime("%m")), time.strftime("%Y"))
+			return "{0} {1}, {2},".format(str(time.strftime("%d")), convert_month(time.strftime("%m")), time.strftime("%Y"))
 
 def internetartikel():
 	print("Druk op [enter] zonder invoer als iets niet bekend is.")
@@ -108,15 +110,29 @@ def internetartikel():
 	print("Bij deze bron kun je de volgende bronvermelding gebruiken:")
 	print("{0}. ({1}). {2}. Geraadpleegd op {3} van {4}.".format(author, pubdate, title, viewdate, url))
 
+def extract():
+	url = raw_input("--> Url van publicatie: ")
+	while url == "info" or url == "Info" or not url or not ("http://" in url or "https://" in url):
+		print("Geef hier de titel van de bron op die je wilt gebruiken. Een url (link) naar de bron met 'http://' of 'https://' is verplicht. Bijvoobeeld:")
+		print(" - http://nos.nl/artikel/2028024-wind-speelt-schiphol-weer-parten.html")
+		print(" - http://tweakers.net/nieuws/102234/eerste-sites-op-amsterdam-domein-gaan-live.html")
+		print("(Zonder ' - '.)")
+		url = raw_input("--> Url van publicatie: ")
+	site = re.search(r'https?:\/\/([^\/]+)\/', url).group(1)
+	if "www." in site:
+		site = re.search(r'www.(.+)', site).group(1)
+	os.system("python -i extract_{0}.py {1}".format(site, url))
+
 def main():
-	referenties = ["Artikel op het internet"]
+	referenties = ["Artikel op het internet", "Artikel op het internet (probeer referentie op te halen)"]
 	print("Type het nummer van de soort bron waar je naar wilt refereren.")
 	for referentie in referenties:
 		print("{0} = {1}".format(str(referenties.index('{0}'.format(referentie))+1), referentie))
 	referentie = raw_input("Nummer van de bron: ")
 	if int(referentie) == 1:
 		internetartikel()
-
+	elif int(referentie) == 2:
+		extract()
 
 if __name__ == '__main__':
 	main()
